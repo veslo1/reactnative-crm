@@ -17,7 +17,7 @@ export default async () => {
                 })['personsList'].map((person, personIndex, wholeList)=> Object.assign({}, person, {
                     parentId: (() => {
                         if(person.id == 1) return wholeList.length - 1;
-                        return person.id<7 && person.id>2 ? 1 : (person.parentId % 2 ? person.parentId : null)
+                        return person.id<6 && person.id>2 ? 1 : (person.parentId % 2 ? person.parentId : null)
                     })()
                 }))
             );

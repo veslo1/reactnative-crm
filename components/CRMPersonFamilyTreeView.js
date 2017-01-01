@@ -11,6 +11,8 @@ export default class CRMPersonFamilyTreeView extends Component {
     constructor(props) {
         super(props);
 
+        this.measured = {};
+
         this.state = {
             childrenRect: {
                 width: 40,
@@ -116,61 +118,83 @@ export default class CRMPersonFamilyTreeView extends Component {
          )
     }
 
-    drawSVG() {
-        let containerView = this.refs.containerView;
-        let parentView = this.refs.parentView;
-        let selectedPersonView = this.refs.selectedPersonView;
-        let childrenView = this.refs.childrenView;
-        let newState = {
+    getInitialStateByLinesWidth(firstLineWidth = 0, childrenLinesWidth = 0) {
+        return {
             svg: {
                 width: 0,
                 height: 0
             },
             firstLine: {
-                width: 1,
+                width: firstLineWidth,
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0}
             },
             secondLine: {
-                width: 1,
+                width: childrenLinesWidth,
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0}
             },
             thirdLine: {
-                width: 1,
+                width: childrenLinesWidth,
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0}
             },
             fourthLine: {
-                width: 1,
+                width: childrenLinesWidth,
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0}
             },
             childrenLines: []
         };
+    }
+
+    resetState() {
+        let newState = this.getInitialStateByLinesWidth();
+        this.setState(Object.assign({}, this.state, newState));
+    }
+
+    updateSVGByNextProps(nextProps) {
+        nextProps = nextProps || this.props;
+        let containerView = this.refs.containerView;
+        let parentView = this.refs.parentView;
+        let selectedPersonView = this.refs.selectedPersonView;
+        let childrenView = this.refs.childrenView;
+
+        let childrenLinesWidth = nextProps.children.length ? 1 : 0;
+        let firstLineWidth = nextProps.parent ? 1 : 0;
+
+        let newState = this.getInitialStateByLinesWidth(firstLineWidth, childrenLinesWidth);
         let dependenciesReadyCount = 0;
         let measureEndCall = () => ++dependenciesReadyCount >=4 && this.setState(Object.assign({}, this.state, newState));
 
-        containerView.measure((fx, fy, width, height, px, py) => {
+        let containerViewMeasureCallback = ({fx, fy, width, height, px, py}) => {
             newState.svg.width = width;
             newState.svg.height = height;
+            this.measured['containerView'] = {fx, fy, width, height, px, py};
             measureEndCall();
-        });
+        };
+        this.measured['containerView'] 
+            ? containerViewMeasureCallback(this.measured['containerView'])
+            : containerView.measure((fx, fy, width, height, px, py) => containerViewMeasureCallback({fx, fy, width, height, px, py}));
 
-        parentView.measure((fx, fy, width, height, px, py) => {
+        let parentViewMeasureCallback = ({fx, fy, width, height, px, py}) => {
             newState.firstLine.startPoint.x = fx + width/2;
             newState.firstLine.startPoint.y = fy + height/2;
+            this.measured['parentView'] = {fx, fy, width, height, px, py};
             measureEndCall();
-        })
+        };
+        this.measured['parentView'] 
+            ? parentViewMeasureCallback(this.measured['parentView'])
+            : parentView.measure((fx, fy, width, height, px, py) => parentViewMeasureCallback({fx, fy, width, height, px, py}));
 
-        selectedPersonView.measure((fx, fy, width, height, px, py) => {
+        let selectedPersonViewMeasureCallback = ({fx, fy, width, height, px, py}) => {
             newState.firstLine.endPoint.x = newState.secondLine.startPoint.x = fx + width/2;
             newState.firstLine.endPoint.y = newState.secondLine.startPoint.y = fy + height/2;
             newState.secondLine.endPoint.x = newState.secondLine.startPoint.x;
             newState.secondLine.endPoint.y = fy + height;
 
-            let childrenMargin = this.props.children.length
-                ? (width/this.props.children.length - this.state.childrenRect.width)/2
+            let childrenMargin = nextProps.children.length
+                ? (width/nextProps.children.length - this.state.childrenRect.width)/2
                 : 0;
 
             let childrenHalfSpaceWidth = childrenMargin + this.state.childrenRect.width/2;
@@ -178,10 +202,10 @@ export default class CRMPersonFamilyTreeView extends Component {
             newState.thirdLine.startPoint.x = fx + childrenHalfSpaceWidth;
             newState.thirdLine.startPoint.y = newState.secondLine.endPoint.y;
 
-            newState.thirdLine.endPoint.x = fx + childrenHalfSpaceWidth*(2*this.props.children.length - 1);
+            newState.thirdLine.endPoint.x = fx + childrenHalfSpaceWidth*(2*nextProps.children.length - 1);
             newState.thirdLine.endPoint.y = newState.secondLine.endPoint.y;
 
-            this.props.children.forEach((person, index) => {
+            nextProps.children.forEach((person, index) => {
                 newState.childrenLines[index] = Object.assign({}, newState.childrenLines[index], {
                     startPoint: Object.assign(
                         {},
@@ -200,13 +224,17 @@ export default class CRMPersonFamilyTreeView extends Component {
                     )
                 })
             });
+            this.measured['selectedPersonView'] = {fx, fy, width, height, px, py};
             measureEndCall();
-        })
+        };
+        this.measured['selectedPersonView'] 
+            ? selectedPersonViewMeasureCallback(this.measured['selectedPersonView'])
+            : selectedPersonView.measure((fx, fy, width, height, px, py) => selectedPersonViewMeasureCallback({fx, fy, width, height, px, py}));
 
-        childrenView.measure((fx, fy, width, height, px, py) => {
-            this.props.children.forEach((person, index) => {
+        let childrenViewMeasureCallback = ({fx, fy, width, height, px, py}) => {
+            nextProps.children.forEach((person, index) => {
                 newState.childrenLines[index] = Object.assign({}, newState.childrenLines[index], {
-                    width: 1,
+                    width: childrenLinesWidth,
                     endPoint: Object.assign(
                         {},
                         newState.childrenLines[index] ? newState.childrenLines[index].endPoint : null,
@@ -216,12 +244,20 @@ export default class CRMPersonFamilyTreeView extends Component {
                     )
                 })
             });
-
+            this.measured['childrenView'] = {fx, fy, width, height, px, py};
             measureEndCall();
-        })
+        };
+        this.measured['childrenView'] 
+            ? childrenViewMeasureCallback(this.measured['childrenView'])
+            : childrenView.measure((fx, fy, width, height, px, py) => childrenViewMeasureCallback({fx, fy, width, height, px, py}));
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.resetState();
+        this.updateSVGByNextProps(nextProps);
     }
 
     componentDidMount() {
-        setTimeout(this.drawSVG.bind(this))
+        setTimeout(this.updateSVGByNextProps.bind(this))
     }
 }
