@@ -14,9 +14,8 @@ export default class CRMBasics extends Component {
     // Initialize the hardcoded data 
     constructor(props) {
         super(props);
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            dataSource: ds.cloneWithRows([]),
+            dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
             selectedPerson: {
                 id: 0
             }
@@ -25,10 +24,9 @@ export default class CRMBasics extends Component {
 
     componentDidMount() {
         getPersonsFromApiAsync().then(persons => {
-            console.log(persons);
-            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
             this.setState({
-                dataSource: ds.cloneWithRows(persons),
+                persons: persons,
+                dataSource: this.state.dataSource.cloneWithRows(persons),
                 selectedPerson: persons[0]
             })
         })
@@ -46,9 +44,21 @@ export default class CRMBasics extends Component {
                     }}
                     list={this.state.dataSource}
                     selectedPerson={this.state.selectedPerson}
-                    onSelect={person => {
-                        this.setState(Object.assign({}, this.state, {
-                            selectedPerson: person
+                    onSelect={targetPerson => {
+                        if (targetPerson.id === this.state.selectedPerson.id) return;
+
+                        //update selectedPerson in listView
+                        let newPersons = this.state.persons.map(
+                            person => (
+                                person.id === targetPerson.id || person.id === this.state.selectedPerson.id
+                                ? {...person}
+                                : person
+                            )
+                        );
+
+                        this.setState(Object.assign({
+                             dataSource: this.state.dataSource.cloneWithRows(newPersons),
+                             selectedPerson: targetPerson
                         }))
                     }}
                 ></CRMListView>
