@@ -5,8 +5,22 @@ import {
     Image,
     ListView,
     StyleSheet,
+    TextInput,
     TouchableWithoutFeedback
 } from 'react-native';
+import SearchBar from 'react-native-search-bar';
+
+const styles = StyleSheet.create({
+    sortText: {
+        paddingTop: 3,
+        paddingBottom: 3,
+        paddingLeft: 5,
+        paddingRight: 5,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: '#E4E4E4',
+        fontSize: 10
+    }
+});
 
 export default class CRMListView extends Component {
 
@@ -16,6 +30,19 @@ export default class CRMListView extends Component {
 
         return (
             <View style={[this.props.style, { backgroundColor: '#FAFAFC' }]}>
+                <View>
+                    <SearchBar />
+                </View>
+                <TouchableWithoutFeedback>
+                    <View>
+                        <Text style={styles.sortText}>Sort By Name ↑</Text>
+                    </View>
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback>
+                    <View>
+                        <Text style={styles.sortText}>Sort By Age ↓</Text>
+                    </View>
+                </TouchableWithoutFeedback>    
                 <ListView
                     enableEmptySections={true}
                     dataSource={this.props.list}
