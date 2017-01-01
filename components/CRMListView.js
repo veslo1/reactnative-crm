@@ -41,7 +41,8 @@ export default class CRMListView extends Component {
                                         width: 40,
                                         height: 40,
                                         borderRadius: 4,
-                                        marginRight: 12
+                                        marginRight: 12,
+                                        backgroundColor: '#DDD',
                                     }}
                                     />
                                 <View style={{ flex: 1 }}>

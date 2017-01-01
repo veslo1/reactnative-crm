@@ -16,20 +16,38 @@ export default class CRMBasics extends Component {
         super(props);
         this.state = {
             dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
-            selectedPerson: {
-                id: 0
-            }
+            selectedPerson: {},
+            persons: []
         }
     }
 
     componentDidMount() {
         getPersonsFromApiAsync().then(persons => {
-            this.setState({
-                persons: persons,
-                dataSource: this.state.dataSource.cloneWithRows(persons),
-                selectedPerson: persons[0]
-            })
+            this.setState(
+                Object.assign({}, this.state, {
+                    persons: persons
+                })
+            );
+            this.selectPerson(persons[0]);
         })
+    }
+
+    selectPerson(targetPerson) {
+        if (targetPerson.id === this.state.selectedPerson.id) return;
+
+        //update selectedPerson in listView
+        let newPersons = this.state.persons.map(
+            person => (
+                person.id === targetPerson.id || person.id === this.state.selectedPerson.id
+                ? {...person}
+                : person
+            )
+        );
+
+        this.setState(Object.assign({
+                dataSource: this.state.dataSource.cloneWithRows(newPersons),
+                selectedPerson: targetPerson
+        }))
     }
 
     render() {
@@ -44,25 +62,13 @@ export default class CRMBasics extends Component {
                     }}
                     list={this.state.dataSource}
                     selectedPerson={this.state.selectedPerson}
-                    onSelect={targetPerson => {
-                        if (targetPerson.id === this.state.selectedPerson.id) return;
-
-                        //update selectedPerson in listView
-                        let newPersons = this.state.persons.map(
-                            person => (
-                                person.id === targetPerson.id || person.id === this.state.selectedPerson.id
-                                ? {...person}
-                                : person
-                            )
-                        );
-
-                        this.setState(Object.assign({
-                             dataSource: this.state.dataSource.cloneWithRows(newPersons),
-                             selectedPerson: targetPerson
-                        }))
-                    }}
-                ></CRMListView>
-                <CRMDetailView style={{flex: 3}}></CRMDetailView>
+                    onSelect={person => this.selectPerson(person)}
+                />
+                <CRMDetailView
+                    style={{flex: 3}}
+                    persons={this.state.persons}
+                    selectedPerson={this.state.selectedPerson}
+                />
              </View>
          )
     }
