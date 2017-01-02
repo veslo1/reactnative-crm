@@ -57,6 +57,7 @@ export default class CRMBasics extends Component {
                     style={{flex: 3}}
                     persons={this.state.persons}
                     selectedPerson={this.state.selectedPerson}
+                    onSelect={person => this.selectPerson(person)}
                 />
              </View>
          )

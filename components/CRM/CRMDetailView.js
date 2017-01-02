@@ -22,6 +22,7 @@ export default class CRMDetailView extends Component {
                                 parent={parent} 
                                 person={this.props.selectedPerson}
                                 children={children}
+                                onSelect={this.props.onSelect}
                                 /> 
                             : null;
         

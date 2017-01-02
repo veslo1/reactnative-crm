@@ -3,7 +3,8 @@ import {
     View,
     Text,
     Image,
-    StyleSheet
+    StyleSheet,
+    TouchableWithoutFeedback
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
@@ -67,20 +68,22 @@ export default class CRMPersonFamilyTreeView extends Component {
                 <View ref='parentView' style={{flex: 2, alignItems: 'center', justifyContent: 'center'}}>
                     {
                         this.props.parent 
-                        ? <Image
-                            style={{
-                                width: 40,
-                                height: 40,
-                                borderRadius: 3,
-                                backgroundColor: '#DDD',
-                                borderColor: '#fff',
-                                borderWidth: StyleSheet.hairlineWidth
-                            }}
-                            source={{
-                                uri: this.props.parent.image
-                            }}
-                            key={this.props.parent.image}
-                        />
+                        ?   <TouchableWithoutFeedback onPress={() => this.props.onSelect(this.props.parent)}>
+                                <Image
+                                    style={{
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: 3,
+                                        backgroundColor: '#DDD',
+                                        borderColor: '#fff',
+                                        borderWidth: StyleSheet.hairlineWidth
+                                    }}
+                                    source={{
+                                        uri: this.props.parent.image
+                                    }}
+                                    key={this.props.parent.image}
+                                />
+                            </TouchableWithoutFeedback>
                         : null
                     }
                 </View>
@@ -103,7 +106,8 @@ export default class CRMPersonFamilyTreeView extends Component {
                 <View ref='childrenView' style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
                     {
                         this.props.children.map(
-                            person => <Image
+                            person => <TouchableWithoutFeedback onPress={() => this.props.onSelect(person)}>
+                                            <Image
                                             style={{
                                                 width: this.state.childrenRect.width,
                                                 height: this.state.childrenRect.height,
@@ -117,6 +121,7 @@ export default class CRMPersonFamilyTreeView extends Component {
                                             }}
                                             key={person.image}
                                         />
+                                    </TouchableWithoutFeedback>
                         )
                     }
                 </View>
