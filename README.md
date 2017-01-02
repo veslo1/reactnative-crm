@@ -2,6 +2,7 @@
 
 ## snapshot by recordit
 [http://recordit.co/OBSmRaRaE8](http://recordit.co/OBSmRaRaE8)
+
 ![reactnative-crm screenshot](components/img/screenshot.png?raw=true "reactnative-crm screenshot")
 
 ## features
