@@ -106,7 +106,7 @@ export default class CRMPersonFamilyTreeView extends Component {
                 <View ref='childrenView' style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
                     {
                         this.props.children.map(
-                            person => <TouchableWithoutFeedback onPress={() => this.props.onSelect(person)}>
+                            (person, index) => <TouchableWithoutFeedback onPress={() => this.props.onSelect(person)} key={index}>
                                             <Image
                                             style={{
                                                 width: this.state.childrenRect.width,
