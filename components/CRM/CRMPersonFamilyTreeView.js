@@ -72,7 +72,9 @@ export default class CRMPersonFamilyTreeView extends Component {
                                 width: 40,
                                 height: 40,
                                 borderRadius: 3,
-                                backgroundColor: '#DDD'
+                                backgroundColor: '#DDD',
+                                borderColor: '#fff',
+                                borderWidth: StyleSheet.hairlineWidth
                             }}
                             source={{
                                 uri: this.props.parent.image
@@ -89,6 +91,8 @@ export default class CRMPersonFamilyTreeView extends Component {
                             height: 160,
                             borderRadius: 10,
                             backgroundColor: '#DDD',
+                            borderColor: '#fff',
+                            borderWidth: StyleSheet.hairlineWidth
                         }}
                         source={{
                             uri: this.props.person.image
@@ -104,7 +108,9 @@ export default class CRMPersonFamilyTreeView extends Component {
                                                 width: this.state.childrenRect.width,
                                                 height: this.state.childrenRect.height,
                                                 borderRadius: 3,
-                                                backgroundColor: '#DDD'
+                                                backgroundColor: '#DDD',
+                                                borderColor: '#fff',
+                                                borderWidth: StyleSheet.hairlineWidth
                                             }}
                                             source={{
                                                 uri: person.image

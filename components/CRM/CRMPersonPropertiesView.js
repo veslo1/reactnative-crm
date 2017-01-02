@@ -21,6 +21,9 @@ export default class CRMPersonPropertiesView extends Component {
                 }}>
                     <Text style={{
                         fontSize: 14
+                    }} numberOfLines={1}>ID: {this.props.person.id}</Text>
+                    <Text style={{
+                        fontSize: 14
                     }} numberOfLines={1}>Age: {this.props.person.age}</Text>
                     <Text style={{
                         fontSize: 14

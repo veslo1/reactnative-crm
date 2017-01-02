@@ -16,7 +16,3 @@
 ``` bash
     react-native run-ios
 ```
-
-## todo
-1. cache image to prevent re-request the same uri
-2. ios dev bug: missing request token for request xxx

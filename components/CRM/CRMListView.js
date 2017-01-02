@@ -91,17 +91,31 @@ export default class CRMListView extends Component {
         ).sort(
             (person1, person2) => {
                 //Todo: sort by name/age in ascending/descending order
-                return (
-                    (
-                        person1[newState.sortKey] > person2[newState.sortKey] ? 1 : -1
-                    ) * (
-                        newState.sortOrder == 'ascending'
-                        ? 1
-                        : newState.sortOrder == 'descending'
-                        ? -1
-                        : 0
-                    )
-                ) 
+                let result = (
+                    person1[newState.sortKey] > person2[newState.sortKey] 
+                    ? 1
+                    : person1[newState.sortKey] < person2[newState.sortKey]
+                    ? -1
+                    : 0
+                );
+
+                result = (
+                    result 
+                    ? result
+                    : person1.id > person2.id
+                    ? 1
+                    : -1
+                );
+
+                result = result * (
+                    newState.sortOrder == 'ascending'
+                    ? 1
+                    : newState.sortOrder == 'descending'
+                    ? -1
+                    : 0
+                );
+
+                return result;
             }
         );
 
