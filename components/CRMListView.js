@@ -11,41 +11,153 @@ import {
 import SearchBar from 'react-native-search-bar';
 
 const styles = StyleSheet.create({
-    sortText: {
-        paddingTop: 3,
-        paddingBottom: 3,
-        paddingLeft: 5,
-        paddingRight: 5,
+    sortBtn: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 2,
+        paddingBottom: 2,
+        marginRight: 3,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: '#E4E4E4',
+        borderRadius: 5,
+        backgroundColor: 'transparent'
+    },
+    sortBtnActive: {
+        backgroundColor: '#FFF'
+    },
+    sortByText: {
         fontSize: 10
     }
 });
 
 export default class CRMListView extends Component {
+    constructor(props) {
+        super(props);
+
+        this.sortOrderCandidates = ['ascending', 'descending', ''];
+
+        this.state = {
+            searchText: '',
+            sortKey: '',
+            sortOrder: '',
+            list: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+        }
+    }
+
+    onSearchTextChange(newSearchText) {
+        let newState = {
+            searchText: newSearchText.trim()
+        };
+        this.filterAndSortListByPropsWithNewState(this.props, newState);
+    }
+
+    toggleSortBy(sortKey) {
+        let newState = {}
+        if (sortKey == this.state.sortKey) {
+            //toggle sort order
+            newState.sortOrder = this.sortOrderCandidates[
+                (this.sortOrderCandidates.indexOf(this.state.sortOrder) + 1) % this.sortOrderCandidates.length
+            ]
+        } else {
+            //set new sort key
+            newState.sortKey = sortKey;
+            newState.sortOrder = 'ascending';
+        }
+        this.filterAndSortListByPropsWithNewState(this.props, newState)
+    }
+
+    filterAndSortListByPropsWithNewState(props, newState) {
+        //update selectedPerson in listView
+        newState = Object.assign({}, this.state, newState);
+
+        let persons = props.persons;
+        let filteredPersons = props.persons.filter(
+            person => {
+                //filter by searchText
+                return newState.searchText 
+                        ? person.name.toLowerCase().indexOf(newState.searchText.toLowerCase()) > -1 
+                        : true;
+            }
+        ).map(
+            person => (
+                person.id === this.props.selectedPerson.id || person.id === props.selectedPerson.id
+                ? {...person}
+                : person
+            )
+        ).sort(
+            (person1, person2) => {
+                //Todo: sort by name/age in ascending/descending order
+                return (
+                    (
+                        person1[newState.sortKey] > person2[newState.sortKey] ? 1 : -1
+                    ) * (
+                        newState.sortOrder == 'ascending'
+                        ? 1
+                        : newState.sortOrder == 'descending'
+                        ? -1
+                        : 0
+                    )
+                ) 
+            }
+        );
+
+        this.setState(Object.assign({}, newState, {
+            list: this.state.list.cloneWithRows(filteredPersons)
+        }));
+    }
+
+    componentWillReceiveProps(newProps) {
+        this.filterAndSortListByPropsWithNewState(newProps);
+    }
 
     render() {
-
-        console.log(this.props.selectedPerson);
-
         return (
             <View style={[this.props.style, { backgroundColor: '#FAFAFC' }]}>
                 <View>
-                    <SearchBar />
+                    <SearchBar
+                        ref='searchBar'
+                        placeholder='Search'
+                        onChangeText={this.onSearchTextChange.bind(this)}
+                    />
                 </View>
-                <TouchableWithoutFeedback>
-                    <View>
-                        <Text style={styles.sortText}>Sort By Name ↑</Text>
+                <View style={{flexDirection: 'row', paddingTop: 3, paddingBottom: 3}}>
+                    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={{
+                            fontSize: 10,
+                            color: '#666'
+                        }}>Sort By </Text>
                     </View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback>
-                    <View>
-                        <Text style={styles.sortText}>Sort By Age ↓</Text>
-                    </View>
-                </TouchableWithoutFeedback>    
+                    <TouchableWithoutFeedback onPress={() => this.toggleSortBy('name')}>
+                        <View style={[styles.sortBtn, this.state.sortKey == 'name' && this.state.sortOrder ? styles.sortBtnActive : null]}>
+                            <Text style={styles.sortByText}>Name{ 
+                                this.state.sortKey != 'name'
+                                ? ''
+                                : this.state.sortOrder == 'ascending' 
+                                ? ' ↑' 
+                                : this.state.sortOrder == 'descending' 
+                                ? ' ↓'
+                                : ''
+                            }</Text>
+                        </View>
+                    </TouchableWithoutFeedback>
+                    <TouchableWithoutFeedback onPress={() => this.toggleSortBy('age')}>
+                        <View style={[styles.sortBtn, this.state.sortKey == 'age' && this.state.sortOrder ? styles.sortBtnActive : null]}>
+                            <Text style={styles.sortByText}>Age{ 
+                                this.state.sortKey != 'age'
+                                ? ''
+                                : this.state.sortOrder == 'ascending' 
+                                ? ' ↑' 
+                                : this.state.sortOrder == 'descending' 
+                                ? ' ↓'
+                                : ''
+                            }</Text>
+                        </View>
+                    </TouchableWithoutFeedback>    
+                </View>
                 <ListView
                     enableEmptySections={true}
-                    dataSource={this.props.list}
+                    dataSource={this.state.list}
                     renderRow={person => (
                         <TouchableWithoutFeedback onPress={() => {
                             this.props.onSelect(person);
@@ -87,6 +199,7 @@ export default class CRMListView extends Component {
 
 CRMListView.propTypes = {
     style: PropTypes.object,
-    list: PropTypes.object.isRequired,
+    persons: PropTypes.array.isRequired,
+    selectedPerson: PropTypes.object.isRequired,
     onSelect: PropTypes.func.isRequired
 }

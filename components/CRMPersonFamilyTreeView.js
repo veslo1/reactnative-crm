@@ -258,6 +258,7 @@ export default class CRMPersonFamilyTreeView extends Component {
     }
 
     componentDidMount() {
+        //measurement can get correctly results after nextTick
         setTimeout(this.updateSVGByNextProps.bind(this))
     }
 }

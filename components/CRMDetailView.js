@@ -13,7 +13,6 @@ export default class CRMDetailView extends Component {
                 person => person.id===this.props.selectedPerson.parentId
             )[0];
 
-        console.log(parent);
         let children = this.props.persons.filter(
                 person => person.parentId===this.props.selectedPerson.id
             );

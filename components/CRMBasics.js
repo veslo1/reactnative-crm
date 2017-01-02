@@ -15,9 +15,8 @@ export default class CRMBasics extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
-            selectedPerson: {},
-            persons: []
+            persons: [],
+            selectedPerson: {}
         }
     }
 
@@ -25,27 +24,17 @@ export default class CRMBasics extends Component {
         getPersonsFromApiAsync().then(persons => {
             this.setState(
                 Object.assign({}, this.state, {
-                    persons: persons
+                    persons: persons,
+                    selectedPerson: persons[0]
                 })
             );
-            this.selectPerson(persons[0]);
         })
     }
 
     selectPerson(targetPerson) {
         if (targetPerson.id === this.state.selectedPerson.id) return;
 
-        //update selectedPerson in listView
-        let newPersons = this.state.persons.map(
-            person => (
-                person.id === targetPerson.id || person.id === this.state.selectedPerson.id
-                ? {...person}
-                : person
-            )
-        );
-
-        this.setState(Object.assign({
-                dataSource: this.state.dataSource.cloneWithRows(newPersons),
+        this.setState(Object.assign({}, this.state, {
                 selectedPerson: targetPerson
         }))
     }
@@ -60,7 +49,7 @@ export default class CRMBasics extends Component {
                         borderRightColor: 'gray',
                         borderRightWidth: StyleSheet.hairlineWidth
                     }}
-                    list={this.state.dataSource}
+                    persons={this.state.persons}
                     selectedPerson={this.state.selectedPerson}
                     onSelect={person => this.selectPerson(person)}
                 />
