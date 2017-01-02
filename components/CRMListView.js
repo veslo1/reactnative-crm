@@ -46,8 +46,11 @@ export default class CRMListView extends Component {
     }
 
     onSearchTextChange(newSearchText) {
+        newSearchText = newSearchText.trim();
+        if (newSearchText == this.state.searchText) return;
+
         let newState = {
-            searchText: newSearchText.trim()
+            searchText: newSearchText
         };
         this.filterAndSortListByPropsWithNewState(this.props, newState);
     }
